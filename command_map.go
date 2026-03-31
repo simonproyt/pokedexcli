@@ -23,6 +23,10 @@ func commandMap(cfg *config) error {
 		url = *cfg.nextLocationsURL
 	}
 
+	if val, ok := cfg.cache.Get(url); ok {
+		return processLocationAreasResponse(cfg, val)
+	}
+
 	res, err := http.Get(url)
 	if err != nil {
 		return err
@@ -34,20 +38,9 @@ func commandMap(cfg *config) error {
 		return err
 	}
 
-	var locationAreas LocationAreasResponse
-	err = json.Unmarshal(body, &locationAreas)
-	if err != nil {
-		return err
-	}
+	cfg.cache.Add(url, body)
 
-	cfg.nextLocationsURL = locationAreas.Next
-	cfg.previousLocationsURL = locationAreas.Previous
-
-	for _, location := range locationAreas.Results {
-		fmt.Println(location.Name)
-	}
-
-	return nil
+	return processLocationAreasResponse(cfg, body)
 }
 
 func commandMapb(cfg *config) error {
@@ -58,6 +51,10 @@ func commandMapb(cfg *config) error {
 
 	url := *cfg.previousLocationsURL
 
+	if val, ok := cfg.cache.Get(url); ok {
+		return processLocationAreasResponse(cfg, val)
+	}
+
 	res, err := http.Get(url)
 	if err != nil {
 		return err
@@ -69,8 +66,14 @@ func commandMapb(cfg *config) error {
 		return err
 	}
 
+	cfg.cache.Add(url, body)
+
+	return processLocationAreasResponse(cfg, body)
+}
+
+func processLocationAreasResponse(cfg *config, body []byte) error {
 	var locationAreas LocationAreasResponse
-	err = json.Unmarshal(body, &locationAreas)
+	err := json.Unmarshal(body, &locationAreas)
 	if err != nil {
 		return err
 	}

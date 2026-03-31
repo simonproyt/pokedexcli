@@ -4,16 +4,22 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
+
+	"github.com/simonproyt/pokedexcli/internal/pokecache"
 )
 
 type config struct {
 	nextLocationsURL     *string
 	previousLocationsURL *string
+	cache                *pokecache.Cache
 }
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	cfg := &config{}
+	cfg := &config{
+		cache: pokecache.NewCache(5 * time.Minute),
+	}
 
 	for {
 		fmt.Print("Pokedex > ")
