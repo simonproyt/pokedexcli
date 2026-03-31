@@ -13,12 +13,14 @@ type config struct {
 	nextLocationsURL     *string
 	previousLocationsURL *string
 	cache                *pokecache.Cache
+	caughtPokemon        map[string]Pokemon
 }
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	cfg := &config{
-		cache: pokecache.NewCache(5 * time.Minute),
+		cache:         pokecache.NewCache(5 * time.Minute),
+		caughtPokemon: make(map[string]Pokemon),
 	}
 
 	for {
